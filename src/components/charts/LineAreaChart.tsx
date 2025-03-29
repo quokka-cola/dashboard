@@ -2,29 +2,38 @@ import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 type ChartProps = {
-	// using `interface` is also ok
-	[x: string]: any;
+	chartData: { name: string; data: number[] }[];
+	chartOptions: any;
 };
+
 type ChartState = {
-	chartData: any[];
+	chartData: { name: string; data: number[] }[];
 	chartOptions: any;
 };
 
 class LineChart extends React.Component<ChartProps, ChartState> {
-	constructor(props: { chartData: any[]; chartOptions: any }) {
+	constructor(props: ChartProps) {
 		super(props);
 
 		this.state = {
-			chartData: [],
-			chartOptions: {}
+			// ✅ Assure que chartData a une valeur par défaut correcte
+			chartData: props.chartData && props.chartData.length > 0 ? props.chartData : [{ name: "Default", data: [0] }],
+			chartOptions: props.chartOptions || {}
 		};
 	}
 
-	componentDidMount() {
-		this.setState({
-			chartData: this.props.chartData,
-			chartOptions: this.props.chartOptions
-		});
+	componentDidUpdate(prevProps: ChartProps) {
+		// ✅ Vérifie si les props ont changé avant de mettre à jour l'état
+		if (prevProps.chartData !== this.props.chartData) {
+			this.setState({
+				chartData: this.props.chartData.length > 0 ? this.props.chartData : [{ name: "Default", data: [0] }]
+			});
+		}
+		if (prevProps.chartOptions !== this.props.chartOptions) {
+			this.setState({
+				chartOptions: this.props.chartOptions || {}
+			});
+		}
 	}
 
 	render() {
